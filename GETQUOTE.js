@@ -60,6 +60,14 @@ async function getQuote(inputAddress, amount, outputAddress, chainId, wallet_add
     }
 
     console.log(`odos: ${odos}, 0xswap: ${_0xswap}, openocean: ${openocean}, 1inch: ${_1inch}, paraswap: ${paraswap}`);
+    let data = {
+        odos: odos,
+        _0xswap: _0xswap,
+        openocean: openocean,
+        _1inch: _1inch,
+        paraswap: paraswap
+    }
+    return data;
 }
 
 

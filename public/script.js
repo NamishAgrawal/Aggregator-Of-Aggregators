@@ -76,7 +76,7 @@ async function printTransactionDetails() {
             outputDecimals: outputDecimals
         })
     }).then(res => res.json()).then(data => {
-
+        console.log(data);
     })
 
 
