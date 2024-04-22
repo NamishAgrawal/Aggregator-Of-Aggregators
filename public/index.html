@@ -34,15 +34,21 @@
 </div>
 <div>
     <h2>Routes</h2>
-    <p>Best: route:</p>
+    <p>Best: route: <span id="best_q"></span></p>
     <ul>
-        <li>0x/Matcha  price</li>
-        <li>1 inch  price</li>
-        <li>odos price</li>
-        <li>openocean price</li>
-        <li>paraswap  price</li>   
+        <li>0x/Matcha  price <span id="0x_q"></span>  <button id="0x_b" onclick="_0x_t()">chose</button></li>
+        <li>1 inch  price <span id="1inch_q"></span> <button id="1inch_b" onclick="_1inch_t()">chose</button></li>
+        <li>odos price <span id="odos_q"></span> <button id="odos_b" onclick="odos_t()">chose</button></li>
+        <li>openocean price <span id="openocean_q"></span> <button id="openocean_b" onclick ="openocean_t()">chose</button></li>
+        <li>paraswap  price <span id="paraswap_q"></span> <button id="paraswap_b" onclick="paraswap_t()">chose</button></li>   
     </ul>
 </div>
+
+<p>the quotes are:</p>
+<p id="qquote">quotes</p>
+
+<br>
+<button onclick="testSetAllowance()">test</button>
 </body>
 
 </html>

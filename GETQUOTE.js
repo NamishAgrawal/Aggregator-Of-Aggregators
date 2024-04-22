@@ -42,7 +42,7 @@ async function getQuote(inputAddress, amount, outputAddress, chainId, wallet_add
         console.log(quote_openocean);
         openocean = quote_openocean.data.outAmount;
     } catch (error) {
-        console.error("Error:", error);
+        console.error("Error: in open ocean", error);
     }
     try {
         // const quote_1inch = await _1inch_quote(inputAddress, outputAddress, amount, chainId);//src, dst, amount, chainId

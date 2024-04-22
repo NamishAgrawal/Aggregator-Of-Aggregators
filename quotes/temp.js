@@ -2,7 +2,7 @@ import dotenv from 'dotenv';
 dotenv.config();
 
 
-let baseUrl = 'https://api.0x.org/swap/v1/price';
+let baseUrl = 'https://api.0x.org/swap/v1/quote';
 
 async function _constructor(sellToken, buyToken, sellAmount, chainId, takerAddress, slippagePercentage) {
     setBaseurl(chainId);
@@ -10,20 +10,21 @@ async function _constructor(sellToken, buyToken, sellAmount, chainId, takerAddre
 }
 
 
-function setBaseurl(chainId) {
-    if (chainId == 1) {
-        baseUrl = 'https://api.0x.org/swap/v1/price'; //mainnet
-    } else if (chainId == 56) {
-        baseUrl = '	https://bsc.api.0x.org/swap/v1/price'; //bsc
-    } else if (chainId == 137) {
-        baseUrl = 'https://polygon.api.0x.org/swap/v1/price';//polygon
-    } else if (chainId == 10) {
-        baseUrl = 'https://optimism.api.0x.org/swap/v1/price';//optimism
-    }
-    else if (chainId == 42161) {
-        baseUrl = 'https://arbitrum.api.0x.org/swap/v1/price';//arbitrum
-    }
+async function setBaseurl(chainId){
+  if (chainId == 1){
+      baseUrl = 'https://api.0x.org/swap/v1/quote'; //mainnet
+  } else if (chainId == 56){
+      baseUrl = '	https://bsc.api.0x.org/swap/v1/quote'; //bsc
+  } else if (chainId == 137){
+      baseUrl = 'https://polygon.api.0x.org/swap/v1/quote';//polygon
+  } else if (chainId == 10){
+      baseUrl = 'https://optimism.api.0x.org/swap/v1/quote';//optimism
+  }
+  else if (chainId == 42161){
+      baseUrl = 'https://arbitrum.api.0x.org/swap/v1/quote';//arbitrum
+  }
 }
+
 
 
 async function start(_sellToken, _buyToken, _sellAmount, _takerAddress, _slippagePercentage) {
@@ -60,23 +61,22 @@ async function start(_sellToken, _buyToken, _sellAmount, _takerAddress, _slippag
     //         console.error('Error fetching quote:', error);
     //         return
     //     });
-
-    const data = await fetch(url, {
+    // }
+    
+    const response = await fetch(url, {
         method: 'GET',
         headers: {
             'Content-Type': 'application/json',
             '0x-api-key': apiKey,
         },
     });
+    const data = await response.json();
     console.log('0xswap Quote:', data);
     console.log(`Buy Amount: ${data.buyAmount}`);
     return data;
-}
+ }
 
 //function call
-
-let quotee = await _constructor('0xf97f4df75117a78c1A5a0DBb814Af92458539FB4','0xFF970A61A04b1cA14834A43f5dE4533eBDDB5CC8','1000000000000000000',42161);
-    console.log(quotee);
 
 // async function main() { // Use an async function for top-level execution
 //     const quotee = await _constructor('0xf97f4df75117a78c1A5a0DBb814Af92458539FB4', '0xFF970A61A04b1cA14834A43f5dE4533eBDDB5CC8', '1000000000000000000', 42161);

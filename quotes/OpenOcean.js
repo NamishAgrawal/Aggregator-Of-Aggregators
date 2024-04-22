@@ -1,5 +1,6 @@
 
-async function getQuote(chain, inTokenAddress, outTokenAddress, amount, slippage, gasPrice) {
+async function getQuote(chainId, inTokenAddress, outTokenAddress, amount, slippage, gasPrice) {
+    const chain = getChainCode(chainId);
     const baseUrl = `https://open-api.openocean.finance/v3/${chain}/quote`;
 
     const params = {
@@ -57,7 +58,7 @@ function getChainCode(chainId) {
             return 'ETH';
     }
 }
-const chain = getChainCode(42161);
+// const chain = getChainCode(42161);
 
 
 // getQuote(chain, inTokenAddress, outTokenAddress, amount, slippage, gasPrice);

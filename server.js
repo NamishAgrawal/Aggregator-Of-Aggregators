@@ -20,6 +20,14 @@ import {
     getQuote
 } from './GETQUOTE.js';
 
+import{
+    _constructor as _0x_t
+} from './transactions/_0xswap_transaction.js'
+
+// import {
+//     _constructor as _0x_t
+// } from './quotes/temp.js';
+
 
 const app = express()
 
@@ -46,22 +54,58 @@ app.post('/getInfo', async (req, res) => {
     try {
         quotes = await getQuote(inputAddress, amount * (10 ** inputDecimals), outputAddress, chainId, wallet_address, inputDecimals, outputDecimals)
         if (quotes) {
-            console.log(quotes); // Moved inside the if block
+            console.log("in server", quotes)
             res.json(quotes);
         } else {
-            // Handle the case where `getQuote` returns undefined
-            console.error("Error: quotes is undefined");
             res.status(500).json({ error: "Something went wrong" });
         }
     } catch (error) {
         console.error("Error:", error);
         res.status(500).json({ error: "Something went wrong" });
     }
-    console.log(quotes)
-    res.json({
-        status: "success"
-    })
+
 })
+
+app.post('/get0xt', async (req, res) => {
+
+    let inputAddress = req.body.inputAddress
+    let amount = req.body.amount
+    let outputAddress = req.body.outputAddress
+    let chainId = req.body.chainId
+    let wallet_address = req.body.wallet_address
+    let inputDecimals = req.body.inputDecimals
+    let outputDecimals = req.body.outputDecimals
+    let quotes = null;
+    (async () => {
+        try {
+            console.log(inputAddress, outputAddress, amount * (10 ** inputDecimals), chainId, wallet_address,0.03);
+            quotes = await _0x_t(inputAddress, outputAddress, amount * (10 ** inputDecimals), chainId, wallet_address,0.03);
+            const _0xtdata ={
+                gasLimit: quotes.gas,
+                gasPrice: quotes.gasPrice,
+                to: quotes.to,
+                data: quotes.data,
+                value: quotes.value,
+                chainId: quotes.chainId,
+                approval_address: quotes.allowanceTarget,
+            }
+            if(quotes){
+                console.log("im workinggggggg!!!!!")
+                // console.log(_0xtdata)
+            res.json(_0xtdata);
+            }
+            else{
+                res.status(500).json({ error: "Something went wrong" });
+            }
+        
+        } catch (error) {
+            console.error("Error:", error);
+            res.status(500).json({ error: "Something went wrong" });
+        }
+    })();
+})  
+
+
 
 app.listen(3000, () => {
     console.log("Server is running on port 3000")
