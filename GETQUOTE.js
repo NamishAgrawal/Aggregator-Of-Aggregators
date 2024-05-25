@@ -15,7 +15,7 @@ import {
 } from './quotes/paraswap_quote.js';
 
 let odos = -1, _0xswap = -1, openocean = -1, _1inch = -1, paraswap = -1;
-
+let pathId;
 //fill in the gas price and slippage percentage
 
 async function getQuote(inputAddress, amount, outputAddress, chainId, wallet_address, inputDecimals, outputDecimals) {
@@ -24,8 +24,9 @@ async function getQuote(inputAddress, amount, outputAddress, chainId, wallet_add
     try {
         const quote_odos = await odos_qote(chainId, 0.3, 0, true, inputAddress, outputAddress, amount.toString(), wallet_address);//42161, 0.3, 0, true, "0xf97f4df75117a78c1A5a0DBb814Af92458539FB4", "0xFF970A61A04b1cA14834A43f5dE4533eBDDB5CC8", "1000000000000000000", "0x0a1c4d82a73f32023d527b3bc779f5d0f0715f05
         // let quote_odos = await odos_qote("42161", "0.3", "0", true, "0xf97f4df75117a78c1A5a0DBb814Af92458539FB4", "0xFF970A61A04b1cA14834A43f5dE4533eBDDB5CC8", "1000000000000000000", "0x0a1c4d82a73f32023d527b3bc779f5d0f0715f05")
-        console.log(quote_odos);
+        console.log("in the GETQUOTE odos",quote_odos);
         odos = quote_odos.outAmounts[0];
+        pathId = quote_odos.pathId;
     } catch (error) {
         console.error("Error:", error);
     }
@@ -65,7 +66,8 @@ async function getQuote(inputAddress, amount, outputAddress, chainId, wallet_add
         _0xswap: _0xswap,
         openocean: openocean,
         _1inch: _1inch,
-        paraswap: paraswap
+        paraswap: paraswap,
+        odos_pathId: pathId,
     }
     return data;
 }

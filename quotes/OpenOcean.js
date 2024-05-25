@@ -24,7 +24,7 @@ async function getQuote(chainId, inTokenAddress, outTokenAddress, amount, slippa
 
     if (response.ok) {
         console.log("OpenOcean Quote:", data);
-        console.log(`Buy Amount: ${data.data.outAmount}`);
+        // console.log(`Buy Amount: ${data.data.outAmount}`);
         return data;
     } else {
         console.error("Error:", data.error || response.statusText);

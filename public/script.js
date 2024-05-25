@@ -12,6 +12,8 @@ let _1inchQuote;
 let paraswapQuote;
 let bestQuote;
 
+// let pathId;
+
 let inputAddress;
 let amount;
 let outputAddress;
@@ -108,6 +110,10 @@ async function printTransactionDetails() {
             const _1inchQuote = data._1inch == -1 ? -1 : data._1inch;
             const paraswapQuote = data.paraswap == -1 ? -1 : data.paraswap;
 
+            // if(odosQuote != -1){
+            // pathId = odosQuote.pathId;
+            // }
+
             console.log("ODOS Quote:", odosQuote);
             console.log("0xSwap Quote:", _0xswapQuote);
             console.log("OpenOcean Quote:", openoceanQuote);
@@ -133,7 +139,7 @@ async function checkAllowance(tokenAddress, spenderAddress, ownerAddress) {
         }
 
         const token = new ethers.Contract(tokenAddress, abi, provider);
-        console.log("Token:", token); 
+        console.log("Token:", token);
 
         const allowance = await token.allowance(ownerAddress, spenderAddress);
         console.log("Allowance:", allowance);
@@ -141,7 +147,7 @@ async function checkAllowance(tokenAddress, spenderAddress, ownerAddress) {
         return allowance;
     } catch (error) {
         console.error("Error checking allowance:", error);
-        return null; 
+        return null;
     }
 }
 
@@ -162,51 +168,194 @@ async function setAllowance(tokenAddress, spenderAddress, amount) {
 
 
 
+// async function _0x_t() {
+//     if (wallet_address == null) {
+//         console.log("Please connect to wallet first");
+//         return;
+//     }
+//     if (_0xswapQuote == "Not Available") {
+//         console.log("Not Available");
+//         return;
+//     }
+//     fetch('/get0xt', {
+//         method: 'POST',
+//         headers: {
+//             'Content-Type': 'application/json',
+//             'Accept': 'application/json'
+//         },
+//         body: JSON.stringify({
+//             inputAddress: inputAddress,
+//             amount: amount,
+//             outputAddress: outputAddress,
+//             chainId: chainId,
+//             wallet_address: wallet_address,
+//             inputDecimals: inputDecimals,
+//             outputDecimals: outputDecimals
+//         })
+//     })
+//         .then(res => res.json())
+//         .then(data => {
+//             console.log("im got the data, ", data);
+//             console.log("approval address", data.approval_address);
+//             const approval_address = data.approval_address;
+//             checkAllowance(inputAddress, approval_address, wallet_address)
+//             .then(allowance => {
+//             const approval = ethers.utils.parseUnits(allowance.toString(), inputDecimals);
+//             console.log("amount = ",amount);
+//             console.log("approval = ",approval.toString());
+//             if (approval.lt(ethers.utils.parseUnits(amount, inputDecimals))) {
+//                 console.log("Approval Required");
+//                 setAllowance(inputAddress, approval_address, amount);
+//             }
+//             else{
+//                 console.log("Approval Not Required");
+//             }
+//         })
+//     })
+// }
+
+
 async function _0x_t() {
+    const signer = provider.getSigner();
     if (wallet_address == null) {
         console.log("Please connect to wallet first");
         return;
     }
-    if (_0xswapQuote == "Not Available") {
+    if (_0xswapQuote == -1) {
         console.log("Not Available");
         return;
     }
-    fetch('/get0xt', {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json',
-            'Accept': 'application/json'
-        },
-        body: JSON.stringify({
-            inputAddress: inputAddress,
-            amount: amount,
-            outputAddress: outputAddress,
-            chainId: chainId,
-            wallet_address: wallet_address,
-            inputDecimals: inputDecimals,
-            outputDecimals: outputDecimals
-        })
-    })
-        .then(res => res.json())
-        .then(data => {
-            console.log("im got the data, ", data);
-            console.log("approval address", data.approval_address);
-            const approval_address = data.approval_address;
-            checkAllowance(inputAddress, approval_address, wallet_address)
-            .then(allowance => {
-            const approval = ethers.utils.parseUnits(allowance.toString(), inputDecimals);
-            console.log("amount = ",amount);
-            console.log("approval = ",approval.toString());
-            if (approval.lt(ethers.utils.parseUnits(amount, inputDecimals))) {
-                console.log("Approval Required");
-                setAllowance(inputAddress, approval_address, amount);
-            }
-            else{
-                console.log("Approval Not Required");
-            }
-        })
-    })
+
+    try {
+        const response = await fetch('/get0xt', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Accept': 'application/json'
+            },
+            body: JSON.stringify({
+                inputAddress: inputAddress,
+                amount: amount,
+                outputAddress: outputAddress,
+                chainId: chainId,
+                wallet_address: wallet_address,
+                inputDecimals: inputDecimals,
+                outputDecimals: outputDecimals
+            })
+        });
+        console.log("Response from server on calling /get0xt:");
+        const data = await response.json();
+        console.log("Got the data:", data);
+        console.log("data.value before tx creation:", data.value);
+        const allowance = await checkAllowance(inputAddress, data.allowanceTarget, wallet_address);
+        const approval = ethers.utils.parseUnits(allowance.toString(), inputDecimals);
+        console.log("amount = ", amount);
+        console.log("approval = ", approval.toString());
+
+        if (approval.lt(ethers.utils.parseUnits(amount, inputDecimals))) {
+            console.log("Approval Required");
+            await setAllowance(inputAddress, data.approval_address, amount); 
+        }
+        console.log("value:", data.value);
+
+        // const tx = {
+        //     to: data.to, // Address of the recipient (DEX contract)
+        //     gasLimit: data.gasLimit, // Gas limit from swapQuoteJSON (optional, might need adjustment)
+        //     data: data.data, // Additional data specific to the DEX or swap function
+        // };
+        let valueHex;
+        if (data.value === "0") {
+            valueHex = "0x0";
+        } else {
+            const valueBN = ethers.BigNumber.from(data.value);
+            valueHex = ethers.utils.hexlify(valueBN);
+        }
+        const gasBN = ethers.BigNumber.from(data.gas);
+        const gasHex = ethers.utils.hexlify(gasBN);
+        const gasPBN = ethers.BigNumber.from(data.gasPrice);
+        const gasPHex = ethers.utils.hexlify(gasPBN);
+        const sentTx = await signer.sendTransaction({
+            gasLimit: gasHex,
+            gasPrice: gasPHex,
+            to: data.to,
+            data: data.data,
+            value: valueHex,
+            chainId: data.chainId,
+        });
+        console.log("Transaction sent! Hash:", sentTx.hash);
+
+        // Optionally, wait for transaction confirmation
+        const receipt = await sentTx.wait();
+        console.log("Transaction confirmed! Block number:", receipt.blockNumber);
+    } catch (error) {
+        console.error("Error handling swap:", error);
+        // Handle errors appropriately (e.g., display user-friendly message)
+    }
 }
+
+async function odos_t() {
+    const signer = provider.getSigner();
+    if (wallet_address == null) {
+        console.log("Please connect to wallet first");
+        return;
+    }
+    if (odosQuote == -1) {
+        console.log("Not Available");
+        return;
+    }
+    try{
+        const response = await fetch('/getOdos', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Accept': 'application/json'
+            },
+            body: JSON.stringify({
+                wallet_address: wallet_address,
+            })
+        });
+        console.log("Response from server on calling /getOdos:");
+        const data = await response.json();
+        console.log("Got the data:", data);
+        const allowance = await checkAllowance(inputAddress, data.transaction.to, wallet_address);
+        const approval = ethers.utils.parseUnits(allowance.toString(), inputDecimals);
+        console.log("amount = ", amount);
+        console.log("approval = ", approval.toString());
+
+        if (approval.lt(ethers.utils.parseUnits(amount, inputDecimals))) {
+            console.log("Approval Required");
+            await setAllowance(inputAddress, data.transaction.to, amount); 
+        }   
+        let valueHex;
+        if (data.transaction.value === "0") {
+            valueHex = "0x0";
+        } else {
+            const valueBN = ethers.BigNumber.from(data.transaction.value);
+            valueHex = ethers.utils.hexlify(valueBN);
+        }
+        const gasBN = ethers.BigNumber.from(data.transaction.gas);
+        const gasHex = ethers.utils.hexlify(gasBN);
+        const gasPBN = ethers.BigNumber.from(data.transaction.gasPrice);
+        const gasPHex = ethers.utils.hexlify(gasPBN);
+        const sentTx = await signer.sendTransaction({
+            gasLimit: gasHex,
+            gasPrice: gasPHex,
+            to: data.transaction.to,
+            data: data.transaction.data,
+            value: valueHex,
+            chainId: data.transaction.chainId,
+        });
+        console.log("Transaction sent! Hash:", sentTx.hash);
+
+        // Optionally, wait for transaction confirmation
+        const receipt = await sentTx.wait();
+        console.log("Transaction confirmed! Block number:", receipt.blockNumber);
+    } catch (error) {
+        console.error("Error handling swap:", error);
+        // Handle errors appropriately (e.g., display user-friendly message)
+    }
+}
+
 
 // module.exports = {
 //     connectWallet,
