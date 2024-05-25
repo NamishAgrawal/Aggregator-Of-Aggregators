@@ -12,6 +12,10 @@ import{
     makeTransaction as odos_t
 }from './transactions/odos_tr2.js'
 
+import{
+    _constructor as openocean_t
+} from "./transactions/OpenOcean_transaction.js"
+
 let pathId;
 
 const app = express()
@@ -28,9 +32,10 @@ app.post('/getInfo', async (req, res) => {
     let wallet_address = req.body.wallet_address
     let inputDecimals = req.body.inputDecimals
     let outputDecimals = req.body.outputDecimals
+    let gasPrice = req.body.gasPrice
     let quotes = null;
     try {
-        quotes = await getQuote(inputAddress, amount * (10 ** inputDecimals), outputAddress, chainId, wallet_address, inputDecimals, outputDecimals)
+        quotes = await getQuote(inputAddress, amount * (10 ** inputDecimals), outputAddress, chainId, wallet_address, inputDecimals, outputDecimals,gasPrice)
         if (quotes) {
             console.log("in server", quotes)
             pathId = quotes.odos_pathId;
@@ -106,6 +111,37 @@ app.post('/getOdos', async (req, res) =>{
         }
     })();
 });
+
+
+app.post('/getOpenOcean', async (req, res) =>{
+    //chainId, inTokenAddress, outTokenAddress, amount, slippage, gasPrice,account
+    console.log(req.body)
+    let account = req.body.account;
+    let chainId = req.body.chainId;
+    let inTokenAddress = req.body.inTokenAddress;
+    let outTokenAddress = req.body.outTokenAddress;
+    let amount = req.body.amount;
+    let slippage = req.body.slippage;
+    let gasPrice = req.body.gasPrice;
+    console.log("account", account, "chainId", chainId, "inTokenAddress", inTokenAddress, "outTokenAddress", outTokenAddress, "amount", amount, "slippage", slippage, "gasPrice", gasPrice);
+    (async () => {
+        try {
+            let data = await openocean_t(chainId,inTokenAddress, outTokenAddress, amount, slippage, gasPrice, account);
+            if(data){
+                console.log("server side openocean data works:")
+                console.log(data)
+                res.json(data);
+            }
+            else{
+                res.status(500).json({ error: "Something went wrong" });
+            }
+        } catch (error) {
+            console.error("Error:", error);
+            res.status(500).json({ error: "Something went wrong" });
+        }
+    })();
+});
+
 
 
 app.listen(3000, () => {

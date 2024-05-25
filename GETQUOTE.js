@@ -18,7 +18,7 @@ let odos = -1, _0xswap = -1, openocean = -1, _1inch = -1, paraswap = -1;
 let pathId;
 //fill in the gas price and slippage percentage
 
-async function getQuote(inputAddress, amount, outputAddress, chainId, wallet_address, inputDecimals, outputDecimals) {
+async function getQuote(inputAddress, amount, outputAddress, chainId, wallet_address, inputDecimals, outputDecimals,gasPrice) {
     console.log(`the input address is ${inputAddress}, the amount is ${amount}, the output address is ${outputAddress}, the chain id is ${chainId}, the wallet address is ${wallet_address}`)
     console.log(inputAddress, amount, outputAddress, chainId, wallet_address)
     try {
@@ -39,7 +39,7 @@ async function getQuote(inputAddress, amount, outputAddress, chainId, wallet_add
         console.error("Error:", error);
     }
     try {
-        const quote_openocean = await openocean_quote(chainId, inputAddress, outputAddress, amount / (10 ** inputDecimals), 0.3, 0.1);//chain, inTokenAddress, outTokenAddress, amount, slippage, gasPrice
+        const quote_openocean = await openocean_quote(chainId, inputAddress, outputAddress, amount / (10 ** inputDecimals), 1.0);//chain, inTokenAddress, outTokenAddress, amount, slippage, gasPrice
         console.log(quote_openocean);
         openocean = quote_openocean.data.outAmount;
     } catch (error) {

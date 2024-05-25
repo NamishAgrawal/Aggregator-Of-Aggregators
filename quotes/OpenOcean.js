@@ -1,8 +1,28 @@
+function getChainCode(chainId) {
+    switch (chainId) {
+        case '1':
+            return 'eth';
+        case '56':
+            return 'bsc';
+        case '137':
+            return 'polygon';
+        case '42161':
+            return 'arbitrum';
+        case '43114':
+            return 'avax';
+        case '10':
+            return 'optimism';
+        default:
+            return 'ETH';
+    }
+}
 
 async function getQuote(chainId, inTokenAddress, outTokenAddress, amount, slippage, gasPrice) {
+    console.log("chainId:", chainId)
     const chain = getChainCode(chainId);
+    console.log("chain:", chain)
     const baseUrl = `https://open-api.openocean.finance/v3/${chain}/quote`;
-
+    gasPrice = 1.0;
     const params = {
         inTokenAddress,
         outTokenAddress,
@@ -10,6 +30,7 @@ async function getQuote(chainId, inTokenAddress, outTokenAddress, amount, slippa
         slippage,
         gasPrice,
     };
+    console.log("params:", params);
     const url = new URL(baseUrl);
     url.search = new URLSearchParams(params);
     // console.log("params:", params);
@@ -23,12 +44,11 @@ async function getQuote(chainId, inTokenAddress, outTokenAddress, amount, slippa
     const data = await response.json();
 
     if (response.ok) {
-        console.log("OpenOcean Quote:", data);
-        // console.log(`Buy Amount: ${data.data.outAmount}`);
+        console.log("Open Ocean Quote :", data);
+        console.log("the amount  is ", data.data.outAmount);
         return data;
     } else {
         console.error("Error:", data.error || response.statusText);
-        return;
     }
 }
 
@@ -40,28 +60,14 @@ async function getQuote(chainId, inTokenAddress, outTokenAddress, amount, slippa
 // const amount = "1";
 // const slippage = "0.5";
 // const gasPrice = "0.1";
-function getChainCode(chainId) {
-    switch (chainId) {
-        case 1:
-            return 'eth';
-        case 56:
-            return 'bsc';
-        case 137:
-            return 'polygon';
-        case 42161:
-            return 'arbitrum';
-        case 43114:
-            return 'avax';
-        case 10:
-            return 'optimism';
-        default:
-            return 'ETH';
-    }
-}
-// const chain = getChainCode(42161);
+// const chain = 42161;
+// const account = "0xdd2a4dbf3fdc4ae3b34a11797f51350a4306f1bb";
 
 
-// getQuote(chain, inTokenAddress, outTokenAddress, amount, slippage, gasPrice);
+
+
+
+// getQuote(chainId, inTokenAddress, outTokenAddress, amount, slippage, gasPrice);
 
 export{
     getQuote

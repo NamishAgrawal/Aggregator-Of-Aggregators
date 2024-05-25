@@ -11,7 +11,8 @@ let openoceanQuote;
 let _1inchQuote;
 let paraswapQuote;
 let bestQuote;
-
+let feeData; 
+let gasPrice = 2;
 // let pathId;
 
 let inputAddress;
@@ -63,7 +64,10 @@ async function printTransactionDetails() {
     erc20_inp = new ethers.Contract(inputAddress, abi, provider);
     erc20_out = new ethers.Contract(outputAddress, abi, provider);
     inputDecimals = await erc20_inp.decimals();
-    outputDecimals = await erc20_out.decimals();
+    outputDecimals = await erc20_out.decimals()
+
+    // gasPrice = (await provider.getFeeData()).maxFeePerGas
+
     if (inputDecimals == null) {
         console.log("Invalid Input Address");
         return;
@@ -97,18 +101,19 @@ async function printTransactionDetails() {
             chainId: chainId,
             wallet_address: wallet_address,
             inputDecimals: inputDecimals,
-            outputDecimals: outputDecimals
+            outputDecimals: outputDecimals,
+            gasPrice: gasPrice
         })
     })
         .then(res => res.json())
         .then(data => {
             console.log("in script.js ", data);
             document.getElementById("qquote").innerHTML = data;
-            const odosQuote = data.odos == -1 ? -1 : data.odos;
-            const _0xswapQuote = data._0xswap == -1 ? -1 : data._0xswap;
-            const openoceanQuote = data.openocean == -1 ? -1 : data.openocean;
-            const _1inchQuote = data._1inch == -1 ? -1 : data._1inch;
-            const paraswapQuote = data.paraswap == -1 ? -1 : data.paraswap;
+            const odosQuote = data.odos == -1 ? -1 : data.odos/(10 ** outputDecimals);
+            const _0xswapQuote = data._0xswap == -1 ? -1 : data._0xswap/(10 ** outputDecimals);
+            const openoceanQuote = data.openocean == -1 ? -1 : data.openocean/(10 ** outputDecimals);
+            const _1inchQuote = data._1inch == -1 ? -1 : data._1inch/(10 ** outputDecimals);
+            const paraswapQuote = data.paraswap == -1 ? -1 : data.paraswap/(10 ** outputDecimals);
 
             // if(odosQuote != -1){
             // pathId = odosQuote.pathId;
@@ -356,6 +361,74 @@ async function odos_t() {
     }
 }
 
+async function openocean_t(){
+    const signer = provider.getSigner();
+    if (wallet_address == null) {
+        console.log("Please connect to wallet first");
+        return;
+    }
+    if (odosQuote == -1) {
+        console.log("Not Available");
+        return;
+    }
+    try{
+        const response = await fetch('/getOpenOcean', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Accept': 'application/json'
+            },
+            body: JSON.stringify({      //chainId, inTokenAddress, outTokenAddress, amount, slippage, gasPrice,account
+                chainId: chainId,
+                inTokenAddress: inputAddress,
+                outTokenAddress: outputAddress,
+                amount: amount,
+                slippage: 0.5,
+                gasPrice: 1,
+                account: wallet_address
+            })
+        });
+        console.log("Response from server on calling /getOpenOcean:");
+        const data = await response.json();
+        console.log("Got the data:", data);
+        console.log("to:", data.data.to);
+        const allowance = await checkAllowance(inputAddress, data.data.to, wallet_address);
+        const approval = ethers.utils.parseUnits(allowance.toString(), inputDecimals);
+        console.log("amount = ", amount);
+        console.log("approval = ", approval.toString());
+
+        if (approval.lt(ethers.utils.parseUnits(amount, inputDecimals))) {
+            console.log("Approval Required");
+            await setAllowance(inputAddress, data.data.to, amount); 
+        }   
+        let valueHex;
+        if (data.data.value === "0") {
+            valueHex = "0x0";
+        } else {
+            const valueBN = ethers.BigNumber.from(data.data.value);
+            valueHex = ethers.utils.hexlify(valueBN);
+        }
+        const gasBN = ethers.BigNumber.from(data.data.estimatedGas);
+        const gasHex = ethers.utils.hexlify(gasBN);
+        // const gasPBN = ethers.BigNumber.from(data.transaction.gasPrice);
+        // const gasPHex = ethers.utils.hexlify(gasPBN);
+        const sentTx = await signer.sendTransaction({
+            gasLimit: gasHex,
+            // gasPrice: gasPHex,
+            to: data.data.to,
+            data: data.data.data,
+            value: valueHex,
+            // chainId: data.data.chainId
+        });
+        console.log("Transaction sent! Hash:", sentTx.hash);
+
+        // Optionally, wait for transaction confirmation
+        const receipt = await sentTx.wait();
+        console.log("Transaction confirmed! Block number:", receipt.blockNumber);
+    } catch (error) {
+        console.error("Error handling swap:", error);
+    }
+}
 
 // module.exports = {
 //     connectWallet,

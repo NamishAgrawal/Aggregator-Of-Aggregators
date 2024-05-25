@@ -24,6 +24,7 @@ async function _constructor(chainId, inTokenAddress, outTokenAddress, amount, sl
 
     if (response.ok) {
         console.log("Quote:", data);
+        return data;
     } else {
         console.error("Error:", data.error || response.statusText);
     }
@@ -36,23 +37,23 @@ async function _constructor(chainId, inTokenAddress, outTokenAddress, amount, sl
 // const outTokenAddress = '0xFF970A61A04b1cA14834A43f5dE4533eBDDB5CC8';
 // const amount = "1";
 // const slippage = "0.5";
-// const gasPrice = "0.1";
+// const gasPrice = "2";
 // const chain = 42161;
 // const account = "0xdd2a4dbf3fdc4ae3b34a11797f51350a4306f1bb";
 
 function getChainCode(chainId) {
     switch (chainId) {
-        case 1:
+        case "1":
             return 'eth';
-        case 56:
+        case '56':
             return 'bsc';
-        case 137:
+        case '137':
             return 'polygon';
-        case 42161:
+        case '42161':
             return 'arbitrum';
-        case 43114:
+        case '43114':
             return 'avax';
-        case 10:
+        case '10':
             return 'optimism';
         default:
             return 'ETH';
@@ -61,7 +62,7 @@ function getChainCode(chainId) {
 
 
 
-_constructor(chain, inTokenAddress, outTokenAddress, amount, slippage, gasPrice,account);
+// _constructor(chain, inTokenAddress, outTokenAddress, amount, slippage, gasPrice,account);
 
 export{
     _constructor
