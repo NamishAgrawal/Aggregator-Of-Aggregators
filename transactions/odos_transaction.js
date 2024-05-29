@@ -13,7 +13,7 @@ async function makeTransaction(_chainId, _slippage, _referral_code, _compact, _i
     const transactionUrl = "https://api.odos.xyz/sor/assemble";
     const transactionRequestBody = {
         "pathId": pathId,
-        "simulate": false,  
+        "simulate": false,      
         "userAddr": address
     };
     return await getTransaction(transactionRequestBody, transactionUrl);
@@ -38,7 +38,7 @@ async function getTransaction(transactionRequestBody, transactionUrl) {
         // handle transaction failure cases
     }
 }
-makeTransaction(42161, 0.3, 0, true, "0xf97f4df75117a78c1A5a0DBb814Af92458539FB4", "0xFF970A61A04b1cA14834A43f5dE4533eBDDB5CC8", "1000000000000000000", "0xdd2a4dbf3fdc4ae3b34a11797f51350a4306f1bb");
+// makeTransaction(42161, 0.3, 0, true, "0xf97f4df75117a78c1A5a0DBb814Af92458539FB4", "0xFF970A61A04b1cA14834A43f5dE4533eBDDB5CC8", "1000000000000000000", "0xdd2a4dbf3fdc4ae3b34a11797f51350a4306f1bb");
 export{
     makeTransaction
 }

@@ -16,6 +16,7 @@ import {
 
 let odos = -1, _0xswap = -1, openocean = -1, _1inch = -1, paraswap = -1;
 let pathId;
+let priceRoute;
 //fill in the gas price and slippage percentage
 
 async function getQuote(inputAddress, amount, outputAddress, chainId, wallet_address, inputDecimals, outputDecimals,gasPrice) {
@@ -56,6 +57,7 @@ async function getQuote(inputAddress, amount, outputAddress, chainId, wallet_add
         const quote_paraswap = await paraswap_quote(inputAddress, inputDecimals, outputAddress, outputDecimals, amount, "SELL", chainId);//_srcToken, _srcDecimals, _destToken, _destDecimals, _amount, _side, _network
         console.log(quote_paraswap);
         paraswap = quote_paraswap.priceRoute.destAmount;
+        priceRoute = quote_paraswap.priceRoute;
     } catch (error) {
         console.error("Error:", error);
     }
@@ -68,7 +70,8 @@ async function getQuote(inputAddress, amount, outputAddress, chainId, wallet_add
         _1inch: _1inch,
         paraswap: paraswap,
         odos_pathId: pathId,
-    }
+        paraswap_priceRoute: priceRoute
+        }
     return data;
 }
 

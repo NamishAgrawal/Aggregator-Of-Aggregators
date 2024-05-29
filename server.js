@@ -16,7 +16,14 @@ import{
     _constructor as openocean_t
 } from "./transactions/OpenOcean_transaction.js"
 
+import{
+    makeTransaction as paraswap_t
+} from "./transactions/paraswap_transaction.js"
+
 let pathId;
+let paraswap_priceRoute;
+let inputDecimals;
+let outputDecimals;
 
 const app = express()
 
@@ -30,8 +37,8 @@ app.post('/getInfo', async (req, res) => {
     let outputAddress = req.body.outputAddress
     let chainId = req.body.chainId
     let wallet_address = req.body.wallet_address
-    let inputDecimals = req.body.inputDecimals
-    let outputDecimals = req.body.outputDecimals
+    inputDecimals = req.body.inputDecimals
+    outputDecimals = req.body.outputDecimals
     let gasPrice = req.body.gasPrice
     let quotes = null;
     try {
@@ -39,7 +46,9 @@ app.post('/getInfo', async (req, res) => {
         if (quotes) {
             console.log("in server", quotes)
             pathId = quotes.odos_pathId;
+            paraswap_priceRoute = quotes.paraswap_priceRoute;
             console.log("\n\npathId", pathId,'\n\n')
+            console.log("\n\nparaswap_priceRoute", paraswap_priceRoute,'\n\n')
             res.json(quotes);
         } else {
             res.status(500).json({ error: "Something went wrong" });
@@ -142,6 +151,33 @@ app.post('/getOpenOcean', async (req, res) =>{
     })();
 });
 
+app.post('/getParaswap', async (req, res) =>{
+    console.log("server paraswap transaction body",req.body);
+    (async () => {
+        try{
+            //(_srcToken, _destToken, _srcamount, wallet_address,_priceRoute,_network)
+            // inputAddress: inputAddress,
+            // outputAddress: outputAddress,
+            // amount: amount,
+            // wallet_address: wallet_address,
+            // chainId: chainId, 
+            console.log("params:",req.body.inputAddress, req.body.outputAddress, req.body.amount, req.body.wallet_address, paraswap_priceRoute, req.body.chainId)
+            let data = await paraswap_t(req.body.inputAddress, req.body.outputAddress, req.body.amount, req.body.wallet_address, paraswap_priceRoute, req.body.chainId);
+            if(data){
+                console.log("server side paraswap data works:")
+                console.log(data)
+                res.json(data);
+            }
+            else{
+                res.status(500).json({ error: "Something went wrong" });
+            }
+        }
+        catch(error){
+            console.log("error",error);
+            res.status(500).json({ error: "Something went wrong" });
+        }
+    })();
+})
 
 
 app.listen(3000, () => {

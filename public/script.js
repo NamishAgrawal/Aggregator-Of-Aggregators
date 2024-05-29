@@ -23,7 +23,7 @@ let erc20_inp;
 let erc20_out;
 let inputDecimals;
 let outputDecimals;
-
+let chainId;
 
 const abi = [
     // Read-Only Functions
@@ -426,6 +426,39 @@ async function openocean_t(){
         const receipt = await sentTx.wait();
         console.log("Transaction confirmed! Block number:", receipt.blockNumber);
     } catch (error) {
+        console.error("Error handling swap:", error);
+    }
+}
+
+async function paraswap_t(){
+    const signer = provider.getSigner();
+    if (wallet_address == null) {
+        console.log("Please connect to wallet first");
+        return;
+    }
+    if (paraswapQuote == -1) {
+        console.log("Not Available");
+        return;
+    }
+    try{
+        const response = await fetch('/getParaswap',{
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Accept': 'application/json'
+            },
+            body: JSON.stringify({
+                inputAddress: inputAddress,
+                outputAddress: outputAddress,
+                amount: amount,
+                wallet_address: wallet_address,
+                chainId: chainId, 
+            })
+        });
+        console.log("Response from server on calling /getOpenOcean:");
+        const data = await response.json();
+        console.log("Got the data:", data);
+    }catch(error){
         console.error("Error handling swap:", error);
     }
 }
