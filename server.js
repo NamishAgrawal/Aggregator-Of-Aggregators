@@ -20,6 +20,16 @@ import{
     makeTransaction as paraswap_t
 } from "./transactions/paraswap_transaction.js"
 
+import{
+    _constructor as get1inchapproval
+}from "./transactions/1inchaproval.js"
+
+import{
+    _constructor as _1inch_t
+} from "./transactions/1inch_swap.js"
+import{
+    httpCall as _1inchapprovaladdress
+} from "./transactions/1inchapprovaladdress.js"
 let pathId;
 let paraswap_priceRoute;
 let inputDecimals;
@@ -179,6 +189,47 @@ app.post('/getParaswap', async (req, res) =>{
     })();
 })
 
+app.post('/get1inchapproval',async (req,res)=>{
+    (async () => {
+        try{
+            let data = await _1inchapprovaladdress(req.body.chainId);
+            if(data){
+                console.log("server side 1inch approval data works:")
+                console.log(data)
+                res.json(data);
+            }
+            else{
+                res.status(500).json({ error: "Something went wrong" });
+            }
+        }
+        catch(error){
+            console.log("error",error);
+            res.status(500).json({ error: "Something went wrong" });
+        }
+    })();
+})
+
+app.post('/get1inch', async (req,res)=>{
+    (async()=>{
+        try{
+            // (chainId, src, dst, amount, walletAddress, slippage
+            console.log("params for 1inch:",req.body.chainId, req.body.inputAddress, req.body.outputAddress, req.body.amount, req.body.wallet_address, 3)
+            let data = await _1inch_t(req.body.chainId, req.body.inputAddress, req.body.outputAddress, req.body.amount, req.body.wallet_address, 3);
+            if(data){
+                console.log("server side 1inch data works:")
+                console.log(data)
+                res.json(data);
+            }
+            else{
+                res.status(500).json({ error: "Something went wrong" });
+            }
+        }
+        catch(error){
+            console.log("error",error);
+            res.status(500).json({ error: "Something went wrong" });
+        }
+    })();
+})
 
 app.listen(3000, () => {
     console.log("Server is running on port 3000")

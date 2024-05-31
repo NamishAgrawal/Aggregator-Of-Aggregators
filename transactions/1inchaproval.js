@@ -15,7 +15,6 @@ async function _constructor(chainId, tokenAddress, walletAddress, amount) {
             const calldata = await generateAproval(chainId, tokenAddress, amount);
             console.log(calldata);
             return calldata;
-            
         }
         else {
             return 0;
@@ -24,7 +23,7 @@ async function _constructor(chainId, tokenAddress, walletAddress, amount) {
         console.error("Error:", error);
     }
 }
-_constructor(42161, "0xf97f4df75117a78c1A5a0DBb814Af92458539FB4", "0xdd2a4dbf3fdc4ae3b34a11797f51350a4306f1bb", "1000000000000000000");
+// _constructor(42161, "0xf97f4df75117a78c1A5a0DBb814Af92458539FB4", "0xdd2a4dbf3fdc4ae3b34a11797f51350a4306f1bb", "1000000000000000000");
 async function check_allowance(chainId, _tokenAddress, _walletAddress) {
 
     const url = `https://api.1inch.dev/swap/v6.0/${chainId}/approve/allowance`;
@@ -42,7 +41,6 @@ async function check_allowance(chainId, _tokenAddress, _walletAddress) {
 
     try {
         const response = await axios.get(url, config);
-        console.log(response.data);
         return response.data;
     } catch (error) {
         console.error(error);
@@ -67,7 +65,6 @@ async function generateAproval(chainId, _tokenAddress, _amount) {
 
     try {
         const response = await axios.get(url, config);
-        console.log(response.data);
         return response.data;
     } catch (error) {
         console.error(error);
