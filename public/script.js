@@ -409,7 +409,7 @@ async function openocean_t(){
     if (wallet_address == null) {
         console.log("Please connect to wallet first");
         return;
-    }x    
+    }
     try{
         const response = await fetch('/getOpenOcean', {
             method: 'POST',
