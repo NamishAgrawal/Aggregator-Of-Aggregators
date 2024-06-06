@@ -12,6 +12,7 @@ let _1inchQuote;
 let paraswapQuote;
 let bestQuote;
 let feeData; 
+let bestRoute;
 let gasPrice = 2;
 // let pathId;
 
@@ -131,8 +132,50 @@ async function printTransactionDetails() {
             document.getElementById("paraswap_q").innerHTML = paraswapQuote;
             bestQuote = Math.max(odosQuote, _0xswapQuote, openoceanQuote, _1inchQuote, paraswapQuote);
             console.log("Best Quote:", bestQuote);
-            document.getElementById("best_q").innerHTML = bestQuote;
+            switch(bestQuote){
+                case odosQuote:
+                    document.getElementById("best_q").innerHTML = "ODOS: "+bestQuote;
+                    console.log("best route is odos!")
+                    bestRoute = "ODOS";
+                    break;
+                case _0xswapQuote:
+                    document.getElementById("best_q").innerHTML = "0xSwap: "+bestQuote;
+                    bestRoute = "0xSwap";
+                    break;
+                case openoceanQuote:
+                    document.getElementById("best_q").innerHTML = "OpenOcean: "+bestQuote;
+                    bestRoute = "OpenOcean";
+                    break;
+                case _1inchQuote:
+                    document.getElementById("best_q").innerHTML = "1inch: "+bestQuote;
+                    bestRoute = "1inch";
+                    break;
+                case paraswapQuote:
+                    document.getElementById("best_q").innerHTML = "Paraswap: "+bestQuote;
+                    bestRoute = "Paraswap";
+                    break;
+            }
+            // document.getElementById("best_q").innerHTML = bestQuote;
         })
+}
+async function getbest(){
+    switch(bestRoute){
+        case "ODOS":
+            odos_t();
+            break;
+        case "0xSwap":
+            _0x_t();
+            break;
+        case "OpenOcean":
+            openocean_t();
+            break;
+        case "1inch":
+            _1inch_t();
+            break;
+        case "Paraswap":
+            paraswap_t();
+            break;
+    }
 }
 
 
@@ -366,11 +409,7 @@ async function openocean_t(){
     if (wallet_address == null) {
         console.log("Please connect to wallet first");
         return;
-    }
-    if (openoceanQuote == -1) {
-        console.log("Not Available");
-        return;
-    }
+    }x    
     try{
         const response = await fetch('/getOpenOcean', {
             method: 'POST',
