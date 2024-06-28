@@ -2,7 +2,6 @@ import axios from "axios";
 import dotenv from 'dotenv';
 dotenv.config();
 import {setTimeout} from 'timers/promises';
-  
 
 async function _constructor(chainId, tokenAddress, walletAddress, amount) {
     try {
